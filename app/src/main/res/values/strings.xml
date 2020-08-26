@@ -10,6 +10,12 @@
     <string name="full_name">Mark Abrasaldo</string>
     <string name="status">Applicant</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment">Hello imageList fragment</string>
+    <string name="title_activity_image_list">ImageListActivity</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
 
 </resources>
