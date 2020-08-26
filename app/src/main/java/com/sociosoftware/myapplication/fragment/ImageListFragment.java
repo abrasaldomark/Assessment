@@ -1,47 +1,32 @@
 package com.sociosoftware.myapplication.fragment;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.sociosoftware.myapplication.R;
-import com.sociosoftware.myapplication.activity.MainActivity;
 import com.sociosoftware.myapplication.adapter.RecyclerViewAdapter;
 import com.sociosoftware.myapplication.model.ImageModel;
 import com.squareup.picasso.Picasso;
@@ -51,12 +36,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+import io.realm.Realm;
 
 import static android.bluetooth.BluetoothGattDescriptor.PERMISSION_WRITE;
 import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
@@ -68,7 +57,12 @@ import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
  */
 public class ImageListFragment extends Fragment implements RecyclerViewAdapter.OnItemClickListener {
 
-    ImageView imageView;
+    Realm realm;
+    long nextId;
+    String currentDate;
+    String currentTime;
+
+    ImageModel clickedImage;
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter recyclerViewAdapter;
@@ -113,6 +107,8 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        Realm.init(getContext());
+        realm = Realm.getDefaultInstance();
 
         Context context = getActivity();
         CharSequence text = "ImageList!";
@@ -159,7 +155,6 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
                     }
 
                     recyclerViewAdapter = new RecyclerViewAdapter(getContext(), imageList, ImageListFragment.this);
-//                    recyclerView = new RecyclerViewAdapter()
                     recyclerView.setAdapter(recyclerViewAdapter);
 
 
@@ -198,16 +193,54 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
     @Override
     public void onItemClick(int position) {
 
-        Context context = getActivity();
-        CharSequence text = "AYAYAYAYA!";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
-
-        ImageModel clickedImage = imageList.get(position);
+        clickedImage = imageList.get(position);
 
         Log.d(TAG, "onItemClick: " + clickedImage.getImageUrl());
+
+        currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        currentTime = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(new Date());
+
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                Number current_id = realm.where(ImageModel.class).max("id");
+                if (current_id == null) {
+                    nextId = 1;
+                }
+                else {
+                    nextId = current_id.intValue() + 1;
+                }
+
+                ImageModel imageModel = realm.createObject(ImageModel.class, nextId);
+                imageModel.setCurrentDate(currentDate);
+                imageModel.setCurrentTime(currentTime);
+                imageModel.setImageUrl(clickedImage.getImageUrl());
+
+            }
+        }, new Realm.Transaction.OnSuccess() {
+
+            @Override
+            public void onSuccess() {
+                Context context = getActivity();
+                CharSequence text = "Saved Successfuly!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+        }, new Realm.Transaction.OnError() {
+
+            @Override
+            public void onError(Throwable error) {
+                Context context = getActivity();
+                CharSequence text = "Saving failed!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+        });
 
         ContextWrapper cw = new ContextWrapper(getContext());
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
@@ -215,6 +248,10 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
         if (myImageFile.delete()) Log.d("picassoImageTarget", " image on the disk deleted successfully!");
 
         Picasso.get().load(clickedImage.getImageUrl()).into(picassoImageTarget(getContext(), "imageDir", "my_image.jpeg"));
+    }
+
+    private void saveImageData() {
+
     }
 
     private Target picassoImageTarget(Context context, final String imageDir, final String imageName) {

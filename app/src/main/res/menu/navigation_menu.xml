@@ -27,5 +27,10 @@
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="@string/menu_settings" />
 
+    <item
+        android:id="@+id/menuImageHistory"
+        android:icon="@drawable/ic_baseline_history_24"
+        android:title="@string/history" />
+
 
 </menu>

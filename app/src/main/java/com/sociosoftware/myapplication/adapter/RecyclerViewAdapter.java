@@ -26,10 +26,6 @@ public class RecyclerViewAdapter extends Adapter<RecyclerViewAdapter.ViewHolder>
         void onItemClick(int position);
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        mListener = listener;
-    }
-
     public RecyclerViewAdapter(Context context, ArrayList<ImageModel> imageList, OnItemClickListener mListener) {
         mContext = context;
         this.imageList = imageList;
@@ -46,19 +42,6 @@ public class RecyclerViewAdapter extends Adapter<RecyclerViewAdapter.ViewHolder>
             imageView = itemView.findViewById(R.id.image_view);
             this.onItemClickListener = onItemClickListener;
 
-
-//            itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    if (mListener != null) {
-//                        int position = getAbsoluteAdapterPosition();
-//                        if (position != RecyclerView.NO_POSITION) {
-//                            mListener.onItemClick(position);
-//                        }
-//                    }
-//                }
-//            });
-
             itemView.setOnClickListener(this);
         }
 
@@ -71,6 +54,7 @@ public class RecyclerViewAdapter extends Adapter<RecyclerViewAdapter.ViewHolder>
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         View view = LayoutInflater.from(mContext).inflate(R.layout.image_item, parent, false);
         return new ViewHolder(view, mListener);
     }
@@ -87,6 +71,5 @@ public class RecyclerViewAdapter extends Adapter<RecyclerViewAdapter.ViewHolder>
     public int getItemCount() {
         return imageList.size();
     }
-
 
 }
