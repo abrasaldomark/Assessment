@@ -58,13 +58,14 @@ public class ImageListHistoryRecyclerViewAdapter extends RecyclerView.Adapter<Im
 
         ImageModel currentImageItem = imageList.get(position);
 
-        String imageUrl = "<b>Image URL:</b> " + currentImageItem.getImageUrl();
+        String imageUrl = currentImageItem.getImageUrl();
+        String imageUrlString = "<b>Image URL:</b> " + currentImageItem.getImageUrl();
         String date = currentImageItem.getCurrentDate();
         String time = currentImageItem.getCurrentTime();
         String dateTime ="<b>Date and Time:</b> " + date + " " + time;
 
         Picasso.get().load(imageUrl).fit().centerInside().into(holder.imageView);
-        holder.imageUrl.setText(Html.fromHtml(imageUrl));
+        holder.imageUrl.setText(Html.fromHtml(imageUrlString));
         holder.dateTime.setText(Html.fromHtml(dateTime));
     }
 

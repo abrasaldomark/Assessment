@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 import io.realm.Realm;
 
@@ -64,10 +65,16 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
 
     ImageModel clickedImage;
 
+    static final int MINIMUM_NUMBER = 3;
+    static final int MAXIMUM_NUMBER = 200;
+
     private RecyclerView recyclerView;
     private RecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<ImageModel> imageList;
     private RequestQueue requestQueue;
+
+    private static String[] animals = { "dog", "cat", "bird", "cow", "horse", "sheep", "monkey"};
+    private static String[] colors = { "green", "white", "black", "red", "yellow", "blue", "brown" };
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -138,7 +145,12 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
     }
 
     private void parseJson() {
-        String url = "https://pixabay.com/api/?key=18029780-76f13c70d48da493923640ff9&editors_choice&image_type=photo&pretty=true&per_page=200";
+
+
+        String randomAnimals = animals[(int) (Math.random() * animals.length)];
+        String randomColors = colors[(int) (Math.random() * colors.length)];
+
+        String url = "https://pixabay.com/api/?key=18029780-76f13c70d48da493923640ff9&q=" + randomAnimals + " " + randomColors + "&image_type=photo&pretty=true&per_page=200";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -148,16 +160,12 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
 
                     for(int i = 0; i < jsonArray.length(); i++) {
                         JSONObject hit = jsonArray.getJSONObject(i);
-
                         String imageURL = hit.getString("webformatURL");
-
                         imageList.add(new ImageModel(imageURL));
                     }
 
                     recyclerViewAdapter = new RecyclerViewAdapter(getContext(), imageList, ImageListFragment.this);
                     recyclerView.setAdapter(recyclerViewAdapter);
-
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();
