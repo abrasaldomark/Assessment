@@ -146,7 +146,6 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
 
     private void parseJson() {
 
-
         String randomAnimals = animals[(int) (Math.random() * animals.length)];
         String randomColors = colors[(int) (Math.random() * colors.length)];
 
@@ -256,13 +255,11 @@ public class ImageListFragment extends Fragment implements RecyclerViewAdapter.O
         if (myImageFile.delete()) Log.d("picassoImageTarget", " image on the disk deleted successfully!");
 
         Picasso.get().load(clickedImage.getImageUrl()).into(picassoImageTarget(getContext(), "imageDir", "my_image.jpeg"));
-    }
-
-    private void saveImageData() {
 
     }
 
     private Target picassoImageTarget(Context context, final String imageDir, final String imageName) {
+
         Log.d("picassoImageTarget", " picassoImageTarget");
 
         ContextWrapper cw = new ContextWrapper(context);

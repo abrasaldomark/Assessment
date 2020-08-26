@@ -72,38 +72,43 @@ public class MessagesFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        Context context = getActivity();
-        CharSequence text = "Messages!";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         fragmentView = inflater.inflate(R.layout.fragment_messages, container, false);
+
+        img = new ImageView(getContext());
 
         ContextWrapper cw = new ContextWrapper(getContext());
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         File myImageFile = new File(directory, "my_image.jpeg");
 
-        img = new ImageView(getContext());
+        Picasso.get().invalidate(myImageFile);
+
         Picasso.get().load(myImageFile).into(img, new Callback() {
             @Override
             public void onSuccess() {
+
                 fragmentView.setBackground(img.getDrawable());
+
+                Context context = getActivity();
+                CharSequence text = "Messages!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
             }
 
             @Override
             public void onError(Exception e) {
-
+                e.printStackTrace();
             }
         });
 
         // Inflate the layout for this fragment
-        return fragmentView;
+        return fragmentView ;
     }
 }

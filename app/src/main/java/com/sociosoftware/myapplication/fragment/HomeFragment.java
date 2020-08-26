@@ -8,8 +8,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -74,12 +78,6 @@ public class HomeFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        Context context = getActivity();
-        CharSequence text = "Home!";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
     }
 
     @Override
@@ -88,20 +86,31 @@ public class HomeFragment extends Fragment {
 
         fragmentView = inflater.inflate(R.layout.fragment_home, container, false);
 
+        img = new ImageView(getContext());
+
         ContextWrapper cw = new ContextWrapper(getContext());
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         File myImageFile = new File(directory, "my_image.jpeg");
 
-        img = new ImageView(getContext());
+        Picasso.get().invalidate(myImageFile);
+
         Picasso.get().load(myImageFile).into(img, new Callback() {
             @Override
             public void onSuccess() {
+
                 fragmentView.setBackground(img.getDrawable());
+
+                Context context = getActivity();
+                CharSequence text = "Home!";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
             }
 
             @Override
             public void onError(Exception e) {
-
+                e.printStackTrace();
             }
         });
 

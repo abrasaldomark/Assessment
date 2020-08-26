@@ -108,9 +108,4 @@ public class ImageListHistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         return view;
     }
-
-    private void loadImageHistory() {
-
-
-    }
 }
